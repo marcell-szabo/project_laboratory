@@ -1,0 +1,2 @@
+ebooklib
+boto3
