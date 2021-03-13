@@ -7,15 +7,17 @@ import io
 
 
 def lambda_handler(event, context):
-    #gets epub from S3 into bytesIO
+    #gets AWS resources
     s3 = boto3.client('s3')
     aws_lambda = boto3.client('lambda')
+
+    #gets epub object from S3
     s3_info = event['Records'][0]['s3']
     bucketname = s3_info['bucket']['name']
     objectkey = s3_info['object']['key']
-
     data_stream = io.BytesIO()
     s3.download_fileobj(bucketname, objectkey, data_stream)
+
     #gets plaintext chapters from book
     book = epub.read_epub(data_stream)
     html_list = []
@@ -23,20 +25,20 @@ def lambda_handler(event, context):
         html_list.append(doc.get_body_content().decode("utf-8"))
 
     #process text
-    cleanr = re.compile('<.*?>')
-    for i in html_list:
-        cleantext = re.sub(cleanr, '', i)
-        #convert text into 1 line because of json requirement
-        #puts /// on paragraph ending
-        cleantext = re.sub(r'([\r\n]\s?){2,}|(\S\n\s\n)', '///', cleantext)
-        #puts /n/ on line ending
-        cleantext = re.sub(r'\n', '/n/',cleantext)
-        json_string = json.dumps({"text": cleantext})
+    cleantext = list(map(lambda x: re.sub(r'<.*?>', '', x), html_list))
+    cleantext = list(filter(lambda x: not re.fullmatch(r'\s*', x), cleantext))
+    for i in cleantext:
+        i = re.sub(r'([\r\n]\s?){2,}|(\S\n\s\n)', '///', i)
+        i = re.sub(r'\n', '/n/', i)
+        json_string = json.dumps({"text": i})
+
+        #invoke lambda asyncronously
         response = aws_lambda.invoke(FunctionName='split_ebook_paragraphs',
                                      InvocationType='Event',
                                      LogType='Tail',
                                      Payload=bytes(json_string.encode()))
-        print("Executed ")
+        print(f"invoked: {i}")
+    print("Executed ")
     return {
         'statuscode': 200,
         'body': json.dumps('OK')

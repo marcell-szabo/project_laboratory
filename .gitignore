@@ -1,3 +1,6 @@
+pyvenv.cfg
+desktop.ini
 .idea/
 Lib/
 Scripts/
+split_ebook_paragraphs.zip

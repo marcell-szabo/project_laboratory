@@ -7,20 +7,20 @@ import io
 
 
 def lambda_handler():
-    with open("A:\Egyetem\Önlab\pythonProject\pinocchio1.epub","rb") as f:
+    laptop = "C:\\Users\Marcell Szabo\Documents\Egyetem\onlab\pinocchio1.epub"
+    desktop = "A:\Egyetem\Önlab\pythonProject\pinocchio1.epub"
+    with open(laptop,"rb") as f:
         data_stream = io.BytesIO(f.read())
     book = epub.read_epub(data_stream)
     html_list = []
     for doc in book.get_items_of_type(ebooklib.ITEM_DOCUMENT):
         html_list.append(doc.get_body_content().decode("utf-8"))
-    cleanr = re.compile('<.*?>')
-    for i in html_list:
-        cleantext = re.sub(cleanr, '', i)
-        cleantext = re.sub(r'([\r\n]\s?){2,}|(\S\n\s\n)', '///', cleantext)
-        cleantext = re.sub(r'\n', '/n/',cleantext)
-
-
-
+    cleantext = list(map(lambda x: re.sub(r'<.*?>', '', x), html_list))
+    cleantext = list(filter(lambda x: not re.fullmatch(r'\s*', x), cleantext))
+    for i in cleantext:
+        i = re.sub(r'([\r\n]\s?){2,}|(\S\n\s\n)', '///', i)
+        i = re.sub(r'\n', '/n/',i)
+        json_string = json.dumps({"text": i})
     return {
         'statuscode': 200,
         'body': json.dumps(cleantext)
