@@ -13,7 +13,8 @@ def lambda_handler(event, context):
     #    aws_lambda.invoke(FunctionName='split_ebook_word',
     #                      InvocationType='Event',
     #                      LogType='Tail',
-    #                      !!Payload=bytes(i.encode()))
+    #                      Payload=bytes(json.dumps({"paragraph": i}).encode())
+    #        )
     return {
         'statuscode': 200,
         'body': 'Everything is OK'
