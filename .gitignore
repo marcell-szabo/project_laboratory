@@ -4,3 +4,4 @@ desktop.ini
 Lib/
 Scripts/
 split_ebook_paragraphs.zip
+__pycache__/
