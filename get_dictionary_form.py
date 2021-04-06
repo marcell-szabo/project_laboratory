@@ -14,7 +14,7 @@ def lambda_handler(event, context):
     word = event['word']
     parser = WiktionaryParser()
     result = parser.fetch(word, 'italian')
-    if result:
+    if result and len(word) > 1:
         dictionary_form = []
         for i in result:
             definition = i['definitions']
