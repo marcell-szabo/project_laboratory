@@ -18,6 +18,7 @@ def main(paragraph_json):
             dict_of_words[i] += 1
         else:
             dict_of_words[i] = 1
+    print(list(dict_of_words.keys()))
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(lambda x: get_dictionary_form_testing.lambda_handler({"word": x}, None), list(dict_of_words.keys()))
 
