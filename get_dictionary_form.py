@@ -13,7 +13,15 @@ def decideDictionaryForm(regex, text, referenceWord):
 def lambda_handler(event, context):
     word = event['word']
     parser = WiktionaryParser()
-    result = parser.fetch(word, 'italian')
+    try:
+        result = parser.fetch(word, 'italian')
+    except Exception:
+        return {
+            'statuscode': 500,
+            'body': json.dumps('Couldn\'t get dictionary form ')
+        }
+
+
     if result and len(word) > 1:
         dictionary_form = []
         for i in result:
@@ -40,7 +48,7 @@ def lambda_handler(event, context):
             aws_lambda = boto3.client('lambda')
             for i in dictionary_form:
                 pass
-                #aws_lambda.invoke(FunctionName='translate_and_save_word',
+                #aws_lambda.invoke(FunctionName='translate_and_save_dictionary_form',
                 #                      InvocationType='Event',
                 #                      LogType='Tail',
                 #                      Payload=bytes(json.dumps({"dictionary_form": i}).encode())

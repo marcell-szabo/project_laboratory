@@ -1,2 +1,3 @@
 ebooklib
 boto3
+wiktionaryparser
