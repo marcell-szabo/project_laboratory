@@ -16,7 +16,11 @@ def lambda_handler(event, context):
     bucketname = s3_info['bucket']['name']
     objectkey = s3_info['object']['key']
     data_stream = io.BytesIO()
-    s3.download_fileobj(bucketname, objectkey, data_stream)
+    try:
+        s3.download_fileobj(bucketname, objectkey, data_stream)
+        print('getting ebook from s3 successfull\n')
+    except Exception:
+        print('S3 error')
 
     #gets plaintext chapters from book
     book = epub.read_epub(data_stream)
@@ -32,11 +36,18 @@ def lambda_handler(event, context):
         i = re.sub(r'\n', '/n/', i)
         json_string = json.dumps({"text": i})
 
-        #invoke lambda asyncronously
-        response = aws_lambda.invoke(FunctionName='split_ebook_paragraphs',
-                                     InvocationType='Event',
-                                     LogType='Tail',
-                                     Payload=bytes(json_string.encode()))
+        try:
+            # invoke lambda asyncronously
+            aws_lambda.invoke(FunctionName='split_ebook_paragraphs',
+                              InvocationType='Event',
+                              LogType='Tail',
+                              Payload=bytes(json_string.encode()))
+        except Exception:
+            print("Exception")
+            return {
+                'statuscode': 500,
+                'body': json.dumps('Server error')
+            }
         print(f"invoked: {i}")
     print("Executed ")
     return {
