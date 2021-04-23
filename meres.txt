@@ -1,0 +1,11 @@
+split_ebook_words
+34420 concurrent, 128
+33181 sequential 128
+17886 concurrent 256
+17981 sequential 256
+8791  concurrent 512
+10602 sequential 512
+3961  concurrent 1024
+8420  sequential 1024
+2236  concurrent 2048
+8613  sequential 2048
