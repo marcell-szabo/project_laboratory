@@ -4,7 +4,20 @@ import ebooklib
 from ebooklib import epub
 import re
 import io
+import concurrent.futures
 
+def concurrent_lambdacall(text, aws_lambda):
+    text = re.sub(r'([\r\n]\s?){2,}|(\S\n\s\n)', '///', text)
+    text = re.sub(r'\n', '/n/', text)
+    try:
+        aws_lambda.invoke(FunctionName='split_ebook_paragraphs',
+                          InvocationType='Event',
+                          LogType='Tail',
+                          Payload=bytes(json.dumps({"text": text}).encode())
+                          )
+        print(f'invoked concurrent {text}')
+    except Exception:
+        print(f'Exception {text}')
 
 def lambda_handler(event, context):
     #gets AWS resources
@@ -31,24 +44,8 @@ def lambda_handler(event, context):
     #process text
     cleantext = list(map(lambda x: re.sub(r'<.*?>', '', x), html_list))
     cleantext = list(filter(lambda x: not re.fullmatch(r'\s*', x), cleantext))
-    for i in cleantext:
-        i = re.sub(r'([\r\n]\s?){2,}|(\S\n\s\n)', '///', i)
-        i = re.sub(r'\n', '/n/', i)
-        json_string = json.dumps({"text": i})
-
-        try:
-            # invoke lambda asyncronously
-            aws_lambda.invoke(FunctionName='split_ebook_paragraphs',
-                              InvocationType='Event',
-                              LogType='Tail',
-                              Payload=bytes(json_string.encode()))
-        except Exception:
-            print("Exception")
-            return {
-                'statuscode': 500,
-                'body': json.dumps('Server error')
-            }
-        print(f"invoked: {i}")
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(lambda x: concurrent_lambdacall(x, aws_lambda), cleantext)
     print("Executed ")
     return {
         'statuscode': 200,
