@@ -1,5 +1,5 @@
 Service
-~4000 word scaled to 36000
+~4000 word scaled to 8000
 split_ebook:
     invocations: 1
     avg_duration: 1451ms
@@ -31,9 +31,9 @@ S3
 DynamoDB
     price: $1.54
 Translate
-    price: $7.425 (avg 6 characters)
+    price: $0.7 (avg 6 characters)
 Polly:
-    price: $1.98
+    price: $0.3
 -------------------------------------------
 Total:
 $11,744 ~ 3523 HUF
