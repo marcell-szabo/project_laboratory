@@ -11,12 +11,12 @@ split_ebook_paragraphs:
     config: 1024MB
     price: $0.0
 split_ebook_words:
-    invocations: 85
+    invocations: 424
     avg_duration: 1049ms
     config: 1024MB
     price: $0.01
 get_dictionary_form:
-    invocations: 4002
+    invocations: 4002 unique
     avg_duration: 4469ms
     config: 128MB
     price: $0.35
